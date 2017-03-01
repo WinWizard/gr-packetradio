@@ -25,18 +25,18 @@
 #ifndef INCLUDED_GR_HDLC_CORRELATOR_H
 #define INCLUDED_GR_HDLC_CORRELATOR_H
 
-#include <gr_sync_block.h>
-#include <gr_msg_queue.h>
+#include <gnuradio/sync_block.h>
+#include <gnuradio/msg_queue.h>
+#include <gnuradio/message.h>
 #include <assert.h>
-
 //#define	DEBUG_HDLC_CORRELATOR
 
 class gr_hdlc_correlator;
 typedef boost::shared_ptr<gr_hdlc_correlator> gr_hdlc_correlator_sptr;
 
-gr_hdlc_correlator_sptr gr_make_hdlc_correlator (gr_msg_queue_sptr target_queue, bool descramble = true);
+gr_hdlc_correlator_sptr gr_make_hdlc_correlator (gr::msg_queue::sptr target_queue, bool descramble = true);
 
-class gr_hdlc_correlator : public gr_sync_block {
+class gr_hdlc_correlator : public gr::sync_block::sync_block {
   static const int OVERSAMPLE=8;
   static const int AVG_PERIOD=512;		            // must be power of 2 (for freq offset correction)
   static const unsigned char FLAG=0x7e;
@@ -48,7 +48,7 @@ class gr_hdlc_correlator : public gr_sync_block {
 
   enum state_t { ST_LOOKING, ST_UNDER_THRESHOLD, ST_LOCKED, ST_LOCKED_FLAG_IN, ST_LOCKED_FLAG_OUT };
   state_t	             d_state;
-  gr_msg_queue_sptr      d_target_queue;
+gr::msg_queue::sptr      d_target_queue;
   bool					 d_descramble;
   unsigned int	         d_osi;				        // over sample index [0,OVERSAMPLE-1]
   unsigned int	         d_transition_osi;		    // first index where Hamming dist < thresh
@@ -76,8 +76,8 @@ class gr_hdlc_correlator : public gr_sync_block {
   FILE		*d_debug_fp;			                // binary log file
 #endif
 
-  friend gr_hdlc_correlator_sptr gr_make_hdlc_correlator(gr_msg_queue_sptr target_queue, bool descramble);
-  gr_hdlc_correlator(gr_msg_queue_sptr target_queue, bool descramble = true);
+  friend gr_hdlc_correlator_sptr gr_make_hdlc_correlator(gr::msg_queue::sptr target_queue, bool descramble);
+  gr_hdlc_correlator(gr::msg_queue::sptr target_queue, bool descramble = true);
 
   inline int slice (float x) {
     return x >= d_avg ? 1 : 0;

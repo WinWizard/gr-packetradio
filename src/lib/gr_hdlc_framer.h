@@ -25,8 +25,8 @@
 
 #undef VERBOSE
 
-#include <gr_sync_block.h>
-#include <gr_msg_queue.h>
+#include <gnuradio/sync_block.h>
+#include <gnuradio/msg_queue.h>
 #include <assert.h>
 
 #define MAX_PACKET_LEN 16384
@@ -36,18 +36,18 @@
 class gr_hdlc_framer;
 typedef boost::shared_ptr<gr_hdlc_framer> gr_hdlc_framer_sptr;
 
-gr_hdlc_framer_sptr gr_make_hdlc_framer (gr_msg_queue_sptr target_queue, bool mode);
+gr_hdlc_framer_sptr gr_make_hdlc_framer (gr::msg_queue::sptr target_queue, bool mode);
 
-class gr_hdlc_framer : public gr_sync_block {
+class gr_hdlc_framer : public gr::sync_block::sync_block {
   enum state_t { STARTFLAG, PACKET, ENDFLAG, LASTFLAGBIT, END };
   state_t	            state;
-  gr_msg_queue_sptr     target_queue;
+  gr::msg_queue::sptr     target_queue;
   bool					mode;
   unsigned char			sr,*pktbuf,*pktptr,bitctr,ones,prevbit,bit,rbit;
   unsigned int			bytectr,descr,flagctr;
 
-  friend gr_hdlc_framer_sptr gr_make_hdlc_framer (gr_msg_queue_sptr target_queue, bool mode);
-  gr_hdlc_framer (gr_msg_queue_sptr target_queue, bool mode);
+  friend gr_hdlc_framer_sptr gr_make_hdlc_framer (gr::msg_queue::sptr target_queue, bool mode);
+  gr_hdlc_framer (gr::msg_queue::sptr target_queue, bool mode);
 
  public:
   int work (int noutput_items,

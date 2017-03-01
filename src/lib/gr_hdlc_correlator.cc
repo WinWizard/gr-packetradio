@@ -25,20 +25,22 @@
 #endif
 
 #include <gr_hdlc_correlator.h>
-#include <gr_io_signature.h>
+#include <gnuradio/io_signature.h>
+#include <gnuradio/message.h>
+#include <gnuradio/msg_queue.h>
 #include <assert.h>
 #include <stdexcept>
-#include <gr_count_bits.h>
+#include <gnuradio/blocks/count_bits.h>
 #include <stdio.h>
 
-gr_hdlc_correlator_sptr gr_make_hdlc_correlator (gr_msg_queue_sptr target_queue, bool descramble /*= true*/) {
+gr_hdlc_correlator_sptr gr_make_hdlc_correlator (gr::msg_queue::sptr target_queue, bool descramble /*= true*/) {
   return gr_hdlc_correlator_sptr (new gr_hdlc_correlator (target_queue, descramble));
 }
 
-gr_hdlc_correlator::gr_hdlc_correlator (gr_msg_queue_sptr target_queue, bool descramble /*= true*/)
-  : gr_sync_block ("hdlc_correlator",
-    gr_make_io_signature (1,1,sizeof (float)),
-    gr_make_io_signature (0,0,0)),
+gr_hdlc_correlator::gr_hdlc_correlator (gr::msg_queue::sptr target_queue, bool descramble /*= true*/)
+   : sync_block ("hdlc_correlator",
+    gr::io_signature::make (1,1,sizeof (float)),
+    gr::io_signature::make (0,0,0)),
 	d_descramble(descramble)
 {
         d_target_queue=target_queue;
@@ -198,7 +200,7 @@ int gr_hdlc_correlator::work (int noutput_items,
                             printf("CRC %X %X\n",gfcs,cfcs);
                             if (gfcs==cfcs) {
                                 bytes-=2;
-                                gr_message_sptr msg=gr_make_message(0,0,0,bytes);  	    
+                                gr::message::sptr msg=gr::message::make(0,0,0,bytes);  	    
                                 memcpy(msg->msg(),d_pktbuf,bytes);
                                 d_target_queue->insert_tail(msg);
                                 msg.reset();
@@ -263,7 +265,7 @@ int gr_hdlc_correlator::work (int noutput_items,
 				lastbit[d_osi]=slice(in[n]);
 			}
             d_shift_reg[d_osi]=(d_shift_reg[d_osi]<<1)|descrambler(decision,d_osi);
-            hamming_dist=gr_count_bits8(d_shift_reg[d_osi]^FLAG);
+            hamming_dist=gr::blocks::count_bits8(d_shift_reg[d_osi]^FLAG);
 #ifdef VERBOSE
             printf("%d %f %2x %s %2d  %d\n",samplecounter, in[n],d_shift_reg[d_osi],char2bin(d_shift_reg[d_osi]),hamming_dist, d_osi);
 #endif

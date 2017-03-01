@@ -25,21 +25,21 @@
 #endif
 
 #include <gr_hdlc_framer.h>
-#include <gr_io_signature.h>
+#include <gnuradio/io_signature.h>
 #include <assert.h>
 #include <stdexcept>
 #include <stdio.h>
 
 //#define VERBOSE
 
-gr_hdlc_framer_sptr gr_make_hdlc_framer (gr_msg_queue_sptr target_queue, bool mode) {
+gr_hdlc_framer_sptr gr_make_hdlc_framer (gr::msg_queue::sptr target_queue, bool mode) {
   return gr_hdlc_framer_sptr (new gr_hdlc_framer (target_queue, mode));
 }
 
-gr_hdlc_framer::gr_hdlc_framer (gr_msg_queue_sptr target_queue, bool mode)
-  : gr_sync_block ("hdlc_framer",
-	gr_make_io_signature (1, 1, sizeof (unsigned char)),
-	gr_make_io_signature (0,0,0)) {
+gr_hdlc_framer::gr_hdlc_framer (gr::msg_queue::sptr target_queue, bool mode)
+  : gr::sync_block::sync_block ("hdlc_framer",
+	gr::io_signature::make (1, 1, sizeof (unsigned char)),
+	gr::io_signature::make (0,0,0)) {
 		gr_hdlc_framer::mode=mode;
 		gr_hdlc_framer::target_queue=target_queue;
 		state=STARTFLAG;
@@ -161,7 +161,7 @@ printf("End of Packet Found (%d bytes)\n",bytectr);
                         if (gfcs==cfcs/*true*/) {
                         	//printf("\nCRC %X %X\n",gfcs,cfcs);
                             bytectr-=2;
-                            gr_message_sptr msg=gr_make_message(0,0,0,bytectr);  	    
+                            gr::message::sptr msg=gr::message::make(0,0,0,bytectr);  	    
                             memcpy(msg->msg(),pktbuf,bytectr);
                             target_queue->insert_tail(msg);
                             msg.reset();
